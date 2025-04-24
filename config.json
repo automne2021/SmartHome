@@ -1,0 +1,25 @@
+{
+  "projectName": "SmartHome",
+  "version": "1.0.0",
+  "description": "A web application to control and monitor smart home devices.",
+  "environment": "development",
+  "database": {
+    "type": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "username": "your_username",
+    "password": "your_password",
+    "databaseName": "smarthome_db"
+  },
+  "adafruit": {
+    "apiKey": "your_adafruit_api_key",
+    "apiUrl": "https://io.adafruit.com/api/v2/"
+  },
+  "server": {
+    "port": 8080
+  },
+  "logging": {
+    "level": "info",
+    "logFile": "logs/app.log"
+  }
+}
