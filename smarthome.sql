@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 24, 2025 lúc 10:55 AM
+-- Thời gian đã tạo: Th4 25, 2025 lúc 05:46 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -51,6 +51,34 @@ INSERT INTO `devices` (`id`, `name`, `type`, `status`, `brightness`, `adafruit_f
 -- --------------------------------------------------------
 
 --
+-- Cấu trúc bảng cho bảng `device_usage`
+--
+
+CREATE TABLE `device_usage` (
+  `id` int(11) NOT NULL,
+  `device_id` int(11) NOT NULL,
+  `usage_hours` float NOT NULL,
+  `usage_date` date NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` int(11) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `message` text NOT NULL,
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Cấu trúc bảng cho bảng `sensor_data`
 --
 
@@ -73,6 +101,20 @@ ALTER TABLE `devices`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Chỉ mục cho bảng `device_usage`
+--
+ALTER TABLE `device_usage`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `device_id` (`device_id`),
+  ADD KEY `usage_date` (`usage_date`);
+
+--
+-- Chỉ mục cho bảng `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Chỉ mục cho bảng `sensor_data`
 --
 ALTER TABLE `sensor_data`
@@ -90,10 +132,32 @@ ALTER TABLE `devices`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT cho bảng `device_usage`
+--
+ALTER TABLE `device_usage`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT cho bảng `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT cho bảng `sensor_data`
 --
 ALTER TABLE `sensor_data`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Các ràng buộc cho các bảng đã đổ
+--
+
+--
+-- Các ràng buộc cho bảng `device_usage`
+--
+ALTER TABLE `device_usage`
+  ADD CONSTRAINT `device_usage_ibfk_1` FOREIGN KEY (`device_id`) REFERENCES `devices` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

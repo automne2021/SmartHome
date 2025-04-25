@@ -3,7 +3,7 @@ class SensorController {
     private $db;
 
     public function __construct() {
-        require_once '../src/config/database.php';
+        require_once dirname(__FILE__) . '/../../src/config/database.php';
         $database = new Database();
         $this->db = $database->getConnection();
     }

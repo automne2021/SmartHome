@@ -1,0 +1,93 @@
+/* Overall Layout */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    transition: all 0.3s ease;
+}
+
+.page-content {
+    flex: 1;
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+    background-color: var(--background-color);
+}
+
+/* Responsive Layout */
+@media (max-width: 992px) {
+    .app-container {
+        position: relative;
+    }
+    
+    .sidebar {
+        position: fixed;
+        left: -280px;
+        height: 100%;
+        z-index: 1000;
+        box-shadow: 3px 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .app-container.sidebar-mobile-open .sidebar {
+        left: 0;
+    }
+    
+    .app-container.sidebar-mobile-open::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
+}
+
+/* Sidebar Collapsed State */
+.app-container.sidebar-collapsed .sidebar {
+    width: 70px;
+}
+
+.app-container.sidebar-collapsed .sidebar .sidebar-header h3 span,
+.app-container.sidebar-collapsed .sidebar .user-info,
+.app-container.sidebar-collapsed .sidebar-menu li a span,
+.app-container.sidebar-collapsed .sidebar-footer p {
+    display: none;
+}
+
+.app-container.sidebar-collapsed .sidebar-menu li a {
+    padding: var(--spacing-md);
+    justify-content: center;
+}
+
+.app-container.sidebar-collapsed .sidebar-menu li a i {
+    margin-right: 0;
+    font-size: 1.25rem;
+}
+
+.app-container.sidebar-collapsed .user-avatar {
+    margin: 0 auto;
+}
+
+.app-container.sidebar-collapsed .sidebar-footer {
+    justify-content: center;
+    padding: var(--spacing-md);
+}
+
+/* Animation for content transitions */
+.page-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0.7; }
+    to { opacity: 1; }
+}

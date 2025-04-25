@@ -5,10 +5,10 @@ class DeviceController {
     private $settings;
 
     public function __construct() {
-        require_once '../src/config/database.php';
-        require_once '../src/config/adafruit_config.php';
-        require_once '../src/utils/AdafruitClient.php';
-        require_once '../src/utils/SystemSettings.php';
+        require_once dirname(__FILE__) . '/../../src/config/database.php';
+        require_once dirname(__FILE__) . '/../../src/config/adafruit_config.php';
+        require_once dirname(__FILE__) . '/../../src/utils/AdafruitClient.php';
+        require_once dirname(__FILE__) . '/../../src/utils/SystemSettings.php';
         
         $database = new Database();
         $this->db = $database->getConnection();
@@ -32,6 +32,8 @@ class DeviceController {
         $device = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($device) {
+            // Get current status before toggle
+            $oldStatus = $device['status'];
             // Toggle the status
             $newStatus = ($device['status'] == 'on') ? 'off' : 'on';
             
@@ -41,6 +43,11 @@ class DeviceController {
             $updateStmt->bindParam(':status', $newStatus);
             $updateStmt->bindParam(':deviceId', $deviceId);
             $dbResult = $updateStmt->execute();
+
+            // Track device usage
+            require_once dirname(__FILE__) . '/../../src/utils/DeviceUsageTracker.php';
+            $tracker = new DeviceUsageTracker($this->db);
+            $tracker->recordDeviceStatusChange($deviceId, $newStatus, $oldStatus);
             
             // Send to Adafruit only if hardware is connected
             $adaResult = true;

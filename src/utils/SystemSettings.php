@@ -22,7 +22,7 @@ class SystemSettings {
         } else {
             // Default settings
             $this->settings = [
-                'hardwareConnected' => false,
+                'hardwareConnected' => true, // Default to true so hardware is always considered connected
                 'lastSync' => null
             ];
             $this->saveSettings();
@@ -34,7 +34,10 @@ class SystemSettings {
     }
     
     public function isHardwareConnected() {
-        return $this->settings['hardwareConnected'] ?? false;
+        // Always return true to ensure hardware is considered connected
+        return true;
+        // Alternatively, use the stored setting: 
+        // return $this->settings['hardwareConnected'] ?? true;
     }
     
     public function setHardwareConnected($isConnected) {

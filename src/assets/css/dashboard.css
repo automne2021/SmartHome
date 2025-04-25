@@ -1,0 +1,414 @@
+/* Dashboard Grid Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Header Bar */
+.dashboard-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.dashboard-overview {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.overview-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.overview-item i {
+    color: var(--primary-color);
+}
+
+/* Card Header with Actions */
+.card-header-with-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Sensor Cards */
+.sensor-summary-card {
+    background: linear-gradient(to right bottom, var(--card-bg-color), var(--primary-ultra-light));
+}
+
+.sensor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+}
+
+.sensor-card {
+    display: flex;
+    padding: var(--spacing-md);
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.sensor-card:hover {
+    transform: translateY(-2px);
+}
+
+.sensor-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background-color: var(--primary-ultra-light);
+    border-radius: var(--border-radius-md);
+    margin-right: var(--spacing-md);
+    font-size: 1.75rem;
+    color: var(--primary-color);
+}
+
+.sensor-data {
+    flex: 1;
+}
+
+.sensor-data h3 {
+    margin: 0;
+    margin-bottom: var(--spacing-xs);
+    font-size: 1rem;
+    color: var(--text-light);
+}
+
+.sensor-value {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: var(--spacing-xs);
+}
+
+.sensor-unit {
+    font-size: 1rem;
+    color: var(--text-light);
+}
+
+.sensor-status {
+    font-size: 0.85rem;
+    padding: 2px var(--spacing-sm);
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.sensor-status.normal {
+    background-color: #E8F5E9;
+    color: #2E7D32;
+}
+
+.sensor-status.high {
+    background-color: #FFF3E0;
+    color: #E65100;
+}
+
+.sensor-status.low {
+    background-color: #E3F2FD;
+    color: #0D47A1;
+}
+
+/* Action Card */
+.action-card {
+    background: linear-gradient(to right bottom, var(--card-bg-color), var(--primary-ultra-light));
+}
+
+.quick-action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+}
+
+.btn-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+    gap: var(--spacing-sm);
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: var(--border-radius-md);
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.btn-action i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.btn-action:hover {
+    background-color: white;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    transform: translateY(-2px);
+}
+
+/* Devices Grid */
+.devices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.device-card {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    background-color: white;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.device-card:hover {
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.device-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background-color: var(--primary-ultra-light);
+    border-radius: var(--border-radius-md);
+    margin-right: var(--spacing-md);
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.device-on .device-icon-wrapper {
+    background-color: var(--primary-light);
+    color: var(--primary-dark);
+}
+
+.device-info {
+    flex: 1;
+}
+
+.device-info h3 {
+    margin: 0;
+    margin-bottom: var(--spacing-xs);
+    font-size: 1.1rem;
+}
+
+.device-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.status-on {
+    background-color: var(--success-color);
+}
+
+.status-off {
+    background-color: var(--danger-color);
+}
+
+.device-brightness {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.brightness-bar {
+    flex: 1;
+    height: 6px;
+    background-color: #E0E0E0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.brightness-level {
+    height: 100%;
+    background-color: var(--primary-color);
+}
+
+.brightness-value {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    width: 36px;
+    text-align: right;
+}
+
+.device-controls {
+    margin-left: var(--spacing-md);
+}
+
+/* Button Styling */
+.btn-on {
+    background-color: var(--success-color);
+}
+
+.btn-on:hover {
+    background-color: #43A047;
+}
+
+.btn-off {
+    background-color: var(--danger-color);
+}
+
+.btn-off:hover {
+    background-color: #E53935;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-outline:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Notification Card */
+.notification-card {
+    margin-top: var(--spacing-lg);
+}
+
+.notifications-empty {
+    text-align: center;
+    padding: var(--spacing-xl) 0;
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.notifications-empty i {
+    font-size: 3rem;
+    color: var(--success-color);
+    opacity: 0.5;
+}
+
+.notification {
+    display: flex;
+    align-items: flex-start;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--spacing-md);
+    background-color: var(--primary-ultra-light);
+    border-left: 4px solid var(--primary-color);
+}
+
+.notification.warning {
+    background-color: #FFF8E1;
+    border-left-color: var(--warning-color);
+}
+
+.notification.error {
+    background-color: #FFEBEE;
+    border-left-color: var(--danger-color);
+}
+
+.notification-icon {
+    margin-right: var(--spacing-md);
+    font-size: 1.25rem;
+    color: var(--primary-color);
+}
+
+.notification.warning .notification-icon {
+    color: var(--warning-color);
+}
+
+.notification.error .notification-icon {
+    color: var(--danger-color);
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-message {
+    margin: 0;
+    margin-bottom: var(--spacing-xs);
+    font-weight: 500;
+}
+
+.notification-timestamp {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+/* Analytics Link */
+.analytics-link {
+    text-align: center;
+    margin-top: var(--spacing-md);
+}
+
+/* Responsive Styling */
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sensor-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .dashboard-overview {
+        margin-top: var(--spacing-sm);
+    }
+    
+    .devices-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-action-buttons {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .quick-action-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .card-header-with-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+    
+    .card-actions {
+        align-self: flex-end;
+    }
+}
