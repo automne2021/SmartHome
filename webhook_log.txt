@@ -205,3 +205,242 @@ Final feed name: lamp2
 Final value: 1
 2025-04-25 11:16:34 - Result: Success - Updated device brightness to 1
 2025-04-25 11:16:34 - Result: Success - Updated device brightness to 1
+2025-04-25 11:28:53 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"temperature","value":"28.1"}]
+Parsed JSON: [{"feed_key":"temperature","value":"28.1"}]
+Final feed name: temperature
+Final value: 28.1
+2025-04-25 11:28:53 - Result: Success - Saved temperature data: 28.1
+2025-04-25 11:28:53 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"humidity","value":"64.5"}]
+Parsed JSON: [{"feed_key":"humidity","value":"64.5"}]
+Final feed name: humidity
+Final value: 64.5
+2025-04-25 11:28:53 - Result: Success - Saved humidity data: 64.5
+2025-04-25 11:37:40 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp","value":"1"}]
+Parsed JSON: [{"feed_key":"lamp","value":"1"}]
+Final feed name: lamp
+Final value: 1
+2025-04-25 11:37:40 - Result: Success - Updated device status to on
+2025-04-25 11:37:40 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp","value":"1"}]
+Parsed JSON: [{"feed_key":"lamp","value":"1"}]
+Final feed name: lamp
+Final value: 1
+2025-04-25 11:37:40 - Result: Success - Updated device status to on
+2025-04-25 11:37:50 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"fan","value":"1"}]
+Parsed JSON: [{"feed_key":"fan","value":"1"}]
+Final feed name: fan
+2025-04-25 11:37:50 - Webhook received
+POST: []
+GET: []
+Final value: 1
+Raw input: [{"feed_key":"fan","value":"1"}]
+Parsed JSON: [{"feed_key":"fan","value":"1"}]
+Final feed name: fan
+Final value: 1
+2025-04-25 11:37:50 - Result: Success - Updated device status to on
+2025-04-25 11:37:50 - Result: Success - Updated device status to on
+2025-04-25 11:38:10 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp2","value":"1"}]
+Parsed JSON: [{"feed_key":"lamp2","value":"1"}]
+Final feed name: lamp2
+Final value: 1
+2025-04-25 11:38:10 - Result: Success - Updated device brightness to 1
+2025-04-25 11:38:10 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp2","value":"1"}]
+Parsed JSON: [{"feed_key":"lamp2","value":"1"}]
+Final feed name: lamp2
+Final value: 1
+2025-04-25 11:38:10 - Result: Success - Updated device brightness to 1
+2025-04-25 11:43:55 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"temperature","value":"27.7"}]
+Parsed JSON: [{"feed_key":"temperature","value":"27.7"}]
+2025-04-25 11:43:55 - Webhook received
+POST: []
+GET: []
+Final feed name: temperature
+Raw input: [{"feed_key":"humidity","value":"62.7"}]
+Final value: 27.7
+Parsed JSON: [{"feed_key":"humidity","value":"62.7"}]
+Final feed name: humidity
+Final value: 62.7
+2025-04-25 11:43:55 - Result: Success - Saved humidity data: 62.7
+2025-04-25 11:43:55 - Result: Success - Saved temperature data: 27.7
+2025-04-25 11:53:45 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp2","value":"24"}]
+Parsed JSON: [{"feed_key":"lamp2","value":"24"}]
+Final feed name: lamp2
+Final value: 24
+2025-04-25 11:53:45 - Result: Success - Updated device brightness to 24
+2025-04-25 11:58:57 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"temperature","value":"27.8"}]
+2025-04-25 11:58:57 - Webhook received
+POST: []
+GET: []
+
+Final feed name: temperature
+Raw input: [{"feed_key":"humidity","value":"64.1"}]
+Final value: 27.8
+Parsed JSON: [{"feed_key":"humidity","value":"64.1"}]
+Final feed name: humidity
+Final value: 64.1
+2025-04-25 11:58:57 - Result: Success - Saved temperature data: 27.8
+2025-04-25 11:58:57 - Result: Success - Saved humidity data: 64.1
+2025-04-25 12:13:58 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"temperature","value":"27.5"}]
+2025-04-25 12:13:58 - Webhook received
+POST: []
+GET: []
+Parsed JSON: [{"feed_key":"temperature","value":"27.5"}]
+Raw input: [{"feed_key":"humidity","value":"62.9"}]
+Parsed JSON: [{"feed_key":"humidity","value":"62.9"}]
+Final value: 27.5
+Final feed name: humidity
+Final value: 62.9
+2025-04-25 12:13:58 - Result: Success - Saved temperature data: 27.5
+2025-04-25 12:13:58 - Result: Success - Saved humidity data: 62.9
+2025-04-25 12:14:20 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp","value":"1"}]
+Parsed JSON: [{"feed_key":"lamp","value":"1"}]
+Final feed name: lamp
+Final value: 1
+2025-04-25 12:14:20 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp","value":"1"}]
+Parsed JSON: [{"feed_key":"lamp","value":"1"}]
+Final feed name: lamp
+Final value: 1
+2025-04-25 12:14:20 - Result: Success - Updated device status to on
+2025-04-25 12:14:20 - Result: Success - Updated device status to on
+2025-04-25 12:14:36 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp2","value":"12"}]
+Parsed JSON: [{"feed_key":"lamp2","value":"12"}]
+Final feed name: lamp2
+Final value: 12
+2025-04-25 12:14:36 - Result: Success - Updated device brightness to 12
+2025-04-25 12:26:49 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"fan","value":"1"}]
+Parsed JSON: [{"feed_key":"fan","value":"1"}]
+Final feed name: fan
+Final value: 1
+2025-04-25 12:26:49 - Result: Success - Updated device status to on
+2025-04-25 12:26:49 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"fan","value":"1"}]
+Parsed JSON: [{"feed_key":"fan","value":"1"}]
+Final feed name: fan
+Final value: 1
+2025-04-25 12:26:49 - Result: Success - Updated device status to on
+2025-04-25 12:29:00 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"temperature","value":"27.4"}]
+Parsed JSON: [{"feed_key":"temperature","value":"27.4"}]
+Final feed name: temperature
+Final value: 27.4
+2025-04-25 12:29:00 - Result: Success - Saved temperature data: 27.4
+2025-04-25 12:29:00 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"humidity","value":"62.8"}]
+Parsed JSON: [{"feed_key":"humidity","value":"62.8"}]
+Final feed name: humidity
+Final value: 62.8
+2025-04-25 12:29:00 - Result: Success - Saved humidity data: 62.8
+2025-04-25 12:31:27 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp","value":"1"}]
+Parsed JSON: [{"feed_key":"lamp","value":"1"}]
+Final feed name: lamp
+Final value: 1
+2025-04-25 12:31:27 - Result: Success - Updated device status to on
+2025-04-25 12:31:27 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp","value":"1"}]
+Parsed JSON: [{"feed_key":"lamp","value":"1"}]
+Final feed name: lamp
+Final value: 1
+2025-04-25 12:31:27 - Result: Success - Updated device status to on
+2025-04-25 12:32:07 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp2","value":"18"}]
+Parsed JSON: [{"feed_key":"lamp2","value":"18"}]
+Final feed name: lamp2
+Final value: 18
+2025-04-25 12:32:07 - Result: Success - Updated device brightness to 18
+2025-04-25 12:44:02 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"humidity","value":"58.2"}]
+Parsed JSON: [{"feed_key":"humidity","value":"58.2"}]
+Final feed name: humidity
+Final value: 58.2
+2025-04-25 12:44:02 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"temperature","value":"27.3"}]
+Parsed JSON: [{"feed_key":"temperature","value":"27.3"}]
+Final feed name: temperature
+Final value: 27.3
+2025-04-25 12:44:02 - Result: Success - Saved humidity data: 58.2
+2025-04-25 12:44:02 - Result: Success - Saved temperature data: 27.3
+2025-04-25 12:52:42 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp","value":"1"}]
+Parsed JSON: [{"feed_key":"lamp","value":"1"}]
+Final feed name: lamp
+Final value: 1
+2025-04-25 12:52:42 - Result: Success - Updated device status to on
+2025-04-25 12:52:51 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"fan","value":"1"}]
+Parsed JSON: [{"feed_key":"fan","value":"1"}]
+Final feed name: fan
+Final value: 1
+2025-04-25 12:52:51 - Result: Success - Updated device status to on
+2025-04-25 12:53:04 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp2","value":"29"}]
+Parsed JSON: [{"feed_key":"lamp2","value":"29"}]
+Final feed name: lamp2
+Final value: 29
+2025-04-25 12:53:04 - Result: Success - Updated device brightness to 29

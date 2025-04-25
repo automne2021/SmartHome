@@ -379,6 +379,62 @@
     margin-top: var(--spacing-md);
 }
 
+/* Brightness control for dashboard */
+.dashboard-grid .brightness-control {
+    margin: var(--spacing-md) 0;
+    padding: var(--spacing-sm);
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius-md);
+}
+
+.dashboard-grid .brightness-slider-container {
+    position: relative;
+    height: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.dashboard-grid .brightness-slider {
+    width: 100%;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+    outline: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dashboard-grid .brightness-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dashboard-grid .brightness-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-grid .brightness-only {
+    text-align: center;
+    padding-top: 0;
+}
+
+.dashboard-grid .brightness-note {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 0;
+}
+
 /* Responsive Styling */
 @media (max-width: 992px) {
     .dashboard-grid {

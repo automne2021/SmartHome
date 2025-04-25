@@ -99,6 +99,13 @@ class AdafruitDBSync
 
     public function updateDeviceStatus($deviceId, $status)
     {
+        // Convert numeric values to text status
+        if ($status === '1' || $status === 1) {
+            $status = 'on';
+        } else if ($status === '0' || $status === 0) {
+            $status = 'off';
+        }
+
         $query = "UPDATE devices SET status = :status, updated_at = NOW() WHERE id = :id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':status', $status);

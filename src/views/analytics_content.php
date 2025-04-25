@@ -35,7 +35,8 @@ switch ($range) {
 }
 
 // Function to safely execute query and return data
-function safeQueryFetch($db, $query, $defaultReturn = []) {
+function safeQueryFetch($db, $query, $defaultReturn = [])
+{
     try {
         $stmt = $db->prepare($query);
         $stmt->execute();
@@ -44,6 +45,18 @@ function safeQueryFetch($db, $query, $defaultReturn = []) {
         // Log the error in a production environment
         // error_log("Database query error: " . $e->getMessage());
         return $defaultReturn;
+    }
+}
+
+// Function to format minutes for display
+function formatMinutes($minutes)
+{
+    if ($minutes < 60) {
+        return round($minutes) . " min";
+    } else {
+        $hours = floor($minutes / 60);
+        $mins = round($minutes % 60);
+        return $hours . "h " . $mins . "m";
     }
 }
 
@@ -73,27 +86,28 @@ $humidityLabels = [];
 
 foreach ($tempData as $data) {
     $temperatureValues[] = round($data['value'], 1);
-    $temperatureLabels[] = $range === '24h' ? 
-        date($labelFormat, strtotime($data['time_interval'])) : 
+    $temperatureLabels[] = $range === '24h' ?
+        date($labelFormat, strtotime($data['time_interval'])) :
         date($labelFormat, strtotime($data['time_interval']));
 }
 
 foreach ($humData as $data) {
     $humidityValues[] = round($data['value'], 1);
-    $humidityLabels[] = $range === '24h' ? 
-        date($labelFormat, strtotime($data['time_interval'])) : 
+    $humidityLabels[] = $range === '24h' ?
+        date($labelFormat, strtotime($data['time_interval'])) :
         date($labelFormat, strtotime($data['time_interval']));
 }
 
 // Calculate statistics
-function getStats($values) {
+function getStats($values)
+{
     if (empty($values)) return [
         'avg' => 'N/A',
         'min' => 'N/A',
         'max' => 'N/A',
         'variance' => 'N/A'
     ];
-    
+
     return [
         'avg' => round(array_sum($values) / count($values), 1),
         'min' => round(min($values), 1),
@@ -105,15 +119,62 @@ function getStats($values) {
 $tempStats = getStats($temperatureValues);
 $humStats = getStats($humidityValues);
 
-// Get device usage data from database
-$usageQuery = "SELECT d.name, du.usage_hours, 
-               (du.usage_hours / (SELECT MAX(usage_hours) FROM device_usage WHERE usage_date = CURDATE()) * 100) as percentage 
-               FROM device_usage du 
-               JOIN devices d ON du.device_id = d.id 
-               WHERE du.usage_date = CURDATE() 
-               ORDER BY du.usage_hours DESC 
-               LIMIT 5";
-$deviceUsageData = safeQueryFetch($db, $usageQuery);
+// Define date range based on the selected period
+$startDate = date('Y-m-d', strtotime('-' . str_replace(['h', 'd'], ['hour', 'day'], $range)));
+$endDate = date('Y-m-d');
+
+// Get device usage data with minutes instead of hours
+$usageQuery = "SELECT d.name, SUM(du.usage_minutes) as total_minutes,
+              AVG(du.usage_minutes) as avg_minutes,
+              COUNT(DISTINCT du.usage_date) as days_used,
+              MAX(du.usage_date) as last_used
+              FROM device_usage du
+              JOIN devices d ON du.device_id = d.id
+              WHERE du.usage_date BETWEEN :startDate AND :endDate
+              GROUP BY du.device_id
+              ORDER BY total_minutes DESC";
+
+$usageStmt = $db->prepare($usageQuery);
+$usageStmt->bindParam(':startDate', $startDate);
+$usageStmt->bindParam(':endDate', $endDate);
+$usageStmt->execute();
+$usageData = $usageStmt->fetchAll(PDO::FETCH_ASSOC);
+
+// If no device usage data is found, generate sample data
+if (empty($usageData)) {
+    // Sample device usage data (in minutes)
+    $sampleUsageData = [
+        ['device_id' => 1, 'name' => 'Front Door', 'total_minutes' => 320, 'avg_minutes' => 45.7, 'days_used' => 7, 'last_used' => date('Y-m-d')],
+        ['device_id' => 2, 'name' => 'Living Room Lamp', 'total_minutes' => 1240, 'avg_minutes' => 177.1, 'days_used' => 7, 'last_used' => date('Y-m-d')],
+        ['device_id' => 3, 'name' => 'Bedroom Lamp', 'total_minutes' => 840, 'avg_minutes' => 120.0, 'days_used' => 7, 'last_used' => date('Y-m-d')],
+        ['device_id' => 4, 'name' => 'Ceiling Fan', 'total_minutes' => 780, 'avg_minutes' => 111.4, 'days_used' => 7, 'last_used' => date('Y-m-d')],
+    ];
+
+    $usageData = $sampleUsageData;
+
+    // Also update deviceUsageData to use minutes-based values
+    $deviceUsageData = [];
+    foreach ($sampleUsageData as $device) {
+        $deviceUsageData[] = [
+            'name' => $device['name'],
+            'hours' => round($device['total_minutes'] / 60, 1),
+            'percentage' => min(100, round(($device['total_minutes'] / 60) / 24 * 100))
+        ];
+    }
+
+    // Log that we're using sample data
+    error_log("Using sample device usage data for analytics");
+} else {
+    // Convert minutes-based $usageData to hours-based $deviceUsageData for the chart
+    $deviceUsageData = [];
+    foreach ($usageData as $device) {
+        $deviceUsageData[] = [
+            'name' => $device['name'],
+            'hours' => round($device['total_minutes'] / 60, 1),
+            'percentage' => min(100, round(($device['total_minutes'] / 60) / 24 * 100))
+        ];
+    }
+}
 
 // If no data is found, provide some defaults
 if (empty($deviceUsageData)) {
@@ -169,7 +230,7 @@ foreach ($deviceUsageData as &$device) {
                 </div>
             </div>
         </div>
-        
+
         <div class="overview-card humidity">
             <div class="overview-icon">
                 <i class="fas fa-tint"></i>
@@ -189,7 +250,7 @@ foreach ($deviceUsageData as &$device) {
             </div>
         </div>
     </div>
-    
+
     <div class="analytics-grid">
         <!-- Temperature Analysis Card -->
         <div class="analytics-card temperature-card">
@@ -214,7 +275,7 @@ foreach ($deviceUsageData as &$device) {
                     <canvas id="temperatureChart"></canvas>
                 <?php endif; ?>
             </div>
-            
+
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-calculator"></i></div>
@@ -238,7 +299,7 @@ foreach ($deviceUsageData as &$device) {
                 </div>
             </div>
         </div>
-        
+
         <!-- Humidity Analysis Card -->
         <div class="analytics-card humidity-card">
             <div class="card-header">
@@ -262,7 +323,7 @@ foreach ($deviceUsageData as &$device) {
                     <canvas id="humidityChart"></canvas>
                 <?php endif; ?>
             </div>
-            
+
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-calculator"></i></div>
@@ -286,7 +347,7 @@ foreach ($deviceUsageData as &$device) {
                 </div>
             </div>
         </div>
-        
+
         <!-- Device Usage Analysis Card -->
         <div class="analytics-card device-card full-width">
             <div class="card-header">
@@ -305,26 +366,42 @@ foreach ($deviceUsageData as &$device) {
                     <canvas id="deviceUsageChart"></canvas>
                 </div>
                 <div class="device-usage-table">
-                    <h3>Most Active Devices</h3>
                     <div class="device-usage-list">
-                        <?php foreach($deviceUsageData as $device): ?>
-                        <div class="device-usage-item">
-                            <div class="device-icon"><i class="fas fa-<?php echo strpos($device['name'], 'Light') !== false ? 'lightbulb' : (strpos($device['name'], 'Fan') !== false ? 'fan' : (strpos($device['name'], 'TV') !== false ? 'tv' : 'plug')); ?>"></i></div>
-                            <div class="device-details">
-                                <div class="device-name"><?php echo htmlspecialchars($device['name']); ?></div>
-                                <div class="device-usage-bar">
-                                    <div class="device-usage-progress" style="width: <?php echo $device['percentage']; ?>%"></div>
-                                </div>
-                                <div class="device-usage-time"><?php echo $device['hours']; ?> hrs</div>
+                        <?php if (empty($usageData)): ?>
+                            <div class="no-data-message">
+                                <i class="fas fa-plug"></i>
+                                <p>No device usage data available for this period</p>
                             </div>
-                        </div>
-                        <?php endforeach; ?>
+                        <?php else: ?>
+                            <?php foreach ($usageData as $device): ?>
+                                <div class="device-usage-item">
+                                    <?php
+                                    $icon = strpos($device['name'], 'Light') !== false || strpos($device['name'], 'Lamp') !== false ?
+                                        'lightbulb' : (strpos($device['name'], 'Fan') !== false ?
+                                            'fan' : (strpos($device['name'], 'Door') !== false ?
+                                                'door-open' : 'plug'));
+
+                                    // Calculate percentage (max usage across devices as 100%)
+                                    $maxUsage = max(array_column($usageData, 'total_minutes'));
+                                    $percentage = $maxUsage > 0 ? ($device['total_minutes'] / $maxUsage) * 100 : 0;
+                                    ?>
+                                    <div class="device-icon"><i class="fas fa-<?php echo $icon; ?>"></i></div>
+                                    <div class="device-details">
+                                        <div class="device-name"><?php echo htmlspecialchars($device['name']); ?></div>
+                                        <div class="device-usage-bar">
+                                            <div class="device-usage-progress" style="width: <?php echo round($percentage); ?>%"></div>
+                                        </div>
+                                        <div class="device-usage-time"><?php echo formatMinutes($device['total_minutes']); ?></div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <!-- Date Range Modal -->
     <div id="dateRangeModal" class="date-range-modal">
         <div class="date-range-container">
@@ -354,372 +431,375 @@ foreach ($deviceUsageData as &$device) {
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Chart.js Configuration
-    Chart.defaults.font.family = "'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
-    Chart.defaults.font.size = 12;
-    Chart.defaults.color = '#78909C';
-    
-    // Temperature Chart
-    <?php if (!empty($temperatureValues)): ?>
-    const tempCtx = document.getElementById('temperatureChart').getContext('2d');
-    const tempGradient = tempCtx.createLinearGradient(0, 0, 0, 400);
-    tempGradient.addColorStop(0, 'rgba(255, 99, 132, 0.6)');
-    tempGradient.addColorStop(1, 'rgba(255, 99, 132, 0)');
-    
-    const tempChart = new Chart(tempCtx, {
-        type: 'line',
-        data: {
-            labels: <?php echo json_encode($temperatureLabels); ?>,
-            datasets: [{
-                label: 'Temperature (°C)',
-                data: <?php echo json_encode($temperatureValues); ?>,
-                fill: {
-                    target: 'origin',
-                    above: tempGradient
+    document.addEventListener('DOMContentLoaded', function() {
+        // Chart.js Configuration
+        Chart.defaults.font.family = "'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+        Chart.defaults.font.size = 12;
+        Chart.defaults.color = '#78909C';
+
+        // Temperature Chart
+        <?php if (!empty($temperatureValues)): ?>
+            const tempCtx = document.getElementById('temperatureChart').getContext('2d');
+            const tempGradient = tempCtx.createLinearGradient(0, 0, 0, 400);
+            tempGradient.addColorStop(0, 'rgba(255, 99, 132, 0.6)');
+            tempGradient.addColorStop(1, 'rgba(255, 99, 132, 0)');
+
+            const tempChart = new Chart(tempCtx, {
+                type: 'line',
+                data: {
+                    labels: <?php echo json_encode($temperatureLabels); ?>,
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: <?php echo json_encode($temperatureValues); ?>,
+                        fill: {
+                            target: 'origin',
+                            above: tempGradient
+                        },
+                        borderColor: 'rgb(255, 99, 132)',
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointBackgroundColor: 'rgb(255, 99, 132)',
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderWidth: 2
+                    }]
                 },
-                borderColor: 'rgb(255, 99, 132)',
-                tension: 0.4,
-                borderWidth: 2,
-                pointRadius: 3,
-                pointBackgroundColor: 'rgb(255, 99, 132)',
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: '#fff',
-                pointHoverBorderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    align: 'end',
-                    labels: {
-                        boxWidth: 12,
-                        usePointStyle: true,
-                    }
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    titleFont: {
-                        size: 14,
-                        weight: 'bold'
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                boxWidth: 12,
+                                usePointStyle: true,
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            padding: 10,
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            titleColor: '#333',
+                            bodyColor: '#666',
+                            borderColor: 'rgba(0, 0, 0, 0.1)',
+                            borderWidth: 1,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + ' °C';
+                                }
+                            }
+                        }
                     },
-                    bodyFont: {
-                        size: 13
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            suggestedMin: Math.min(...<?php echo json_encode($temperatureValues); ?>) - 2,
+                            suggestedMax: Math.max(...<?php echo json_encode($temperatureValues); ?>) + 2,
+                            ticks: {
+                                padding: 10
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)',
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                padding: 10
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)',
+                                drawBorder: false
+                            }
+                        }
                     },
-                    padding: 10,
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    titleColor: '#333',
-                    bodyColor: '#666',
-                    borderColor: 'rgba(0, 0, 0, 0.1)',
-                    borderWidth: 1,
-                    displayColors: false,
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.y + ' °C';
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.4
                         }
                     }
                 }
-            },
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    suggestedMin: Math.min(...<?php echo json_encode($temperatureValues); ?>) - 2,
-                    suggestedMax: Math.max(...<?php echo json_encode($temperatureValues); ?>) + 2,
-                    ticks: {
-                        padding: 10
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.04)',
-                        drawBorder: false
-                    }
+            });
+        <?php endif; ?>
+
+        // Humidity Chart
+        <?php if (!empty($humidityValues)): ?>
+            const humCtx = document.getElementById('humidityChart').getContext('2d');
+            const humGradient = humCtx.createLinearGradient(0, 0, 0, 400);
+            humGradient.addColorStop(0, 'rgba(54, 162, 235, 0.6)');
+            humGradient.addColorStop(1, 'rgba(54, 162, 235, 0)');
+
+            const humChart = new Chart(humCtx, {
+                type: 'line',
+                data: {
+                    labels: <?php echo json_encode($humidityLabels); ?>,
+                    datasets: [{
+                        label: 'Humidity (%)',
+                        data: <?php echo json_encode($humidityValues); ?>,
+                        fill: {
+                            target: 'origin',
+                            above: humGradient
+                        },
+                        borderColor: 'rgb(54, 162, 235)',
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointBackgroundColor: 'rgb(54, 162, 235)',
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderWidth: 2
+                    }]
                 },
-                x: {
-                    ticks: {
-                        padding: 10
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                boxWidth: 12,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            padding: 10,
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            titleColor: '#333',
+                            bodyColor: '#666',
+                            borderColor: 'rgba(0, 0, 0, 0.1)',
+                            borderWidth: 1,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + '%';
+                                }
+                            }
+                        }
                     },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.04)',
-                        drawBorder: false
-                    }
-                }
-            },
-            interaction: {
-                mode: 'nearest',
-                axis: 'x',
-                intersect: false
-            },
-            elements: {
-                line: {
-                    tension: 0.4
-                }
-            }
-        }
-    });
-    <?php endif; ?>
-    
-    // Humidity Chart
-    <?php if (!empty($humidityValues)): ?>
-    const humCtx = document.getElementById('humidityChart').getContext('2d');
-    const humGradient = humCtx.createLinearGradient(0, 0, 0, 400);
-    humGradient.addColorStop(0, 'rgba(54, 162, 235, 0.6)');
-    humGradient.addColorStop(1, 'rgba(54, 162, 235, 0)');
-    
-    const humChart = new Chart(humCtx, {
-        type: 'line',
-        data: {
-            labels: <?php echo json_encode($humidityLabels); ?>,
-            datasets: [{
-                label: 'Humidity (%)',
-                data: <?php echo json_encode($humidityValues); ?>,
-                fill: {
-                    target: 'origin',
-                    above: humGradient
-                },
-                borderColor: 'rgb(54, 162, 235)',
-                tension: 0.4,
-                borderWidth: 2,
-                pointRadius: 3,
-                pointBackgroundColor: 'rgb(54, 162, 235)',
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: '#fff',
-                pointHoverBorderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    align: 'end',
-                    labels: {
-                        boxWidth: 12,
-                        usePointStyle: true
-                    }
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    titleFont: {
-                        size: 14,
-                        weight: 'bold'
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            suggestedMin: Math.min(...<?php echo json_encode($humidityValues); ?>) - 5,
+                            suggestedMax: Math.max(...<?php echo json_encode($humidityValues); ?>) + 5,
+                            ticks: {
+                                padding: 10
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)',
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                padding: 10
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)',
+                                drawBorder: false
+                            }
+                        }
                     },
-                    bodyFont: {
-                        size: 13
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
                     },
-                    padding: 10,
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    titleColor: '#333',
-                    bodyColor: '#666',
-                    borderColor: 'rgba(0, 0, 0, 0.1)',
-                    borderWidth: 1,
-                    displayColors: false,
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.y + '%';
+                    elements: {
+                        line: {
+                            tension: 0.4
                         }
                     }
                 }
+            });
+        <?php endif; ?>
+
+        // Device Usage Chart
+        const deviceUsageCtx = document.getElementById('deviceUsageChart').getContext('2d');
+
+        const deviceUsageChart = new Chart(deviceUsageCtx, {
+            type: 'doughnut',
+            data: {
+                labels: <?php echo json_encode(array_column($deviceUsageData, 'name')); ?>,
+                datasets: [{
+                    data: <?php echo json_encode(array_column($deviceUsageData, 'hours')); ?>,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ],
+                    borderColor: 'white',
+                    borderWidth: 2,
+                    hoverOffset: 6
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    suggestedMin: Math.min(...<?php echo json_encode($humidityValues); ?>) - 5,
-                    suggestedMax: Math.max(...<?php echo json_encode($humidityValues); ?>) + 5,
-                    ticks: {
-                        padding: 10
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 10,
+                            padding: 15,
+                            font: {
+                                size: 11
+                            }
+                        }
                     },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.04)',
-                        drawBorder: false
-                    }
-                },
-                x: {
-                    ticks: {
-                        padding: 10
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.04)',
-                        drawBorder: false
-                    }
-                }
-            },
-            interaction: {
-                mode: 'nearest',
-                axis: 'x',
-                intersect: false
-            },
-            elements: {
-                line: {
-                    tension: 0.4
-                }
-            }
-        }
-    });
-    <?php endif; ?>
-    
-    // Device Usage Chart
-    const deviceUsageCtx = document.getElementById('deviceUsageChart').getContext('2d');
-    
-    const deviceUsageChart = new Chart(deviceUsageCtx, {
-        type: 'doughnut',
-        data: {
-            labels: <?php echo json_encode(array_column($deviceUsageData, 'name')); ?>,
-            datasets: [{
-                data: <?php echo json_encode(array_column($deviceUsageData, 'hours')); ?>,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.7)',
-                    'rgba(54, 162, 235, 0.7)',
-                    'rgba(255, 206, 86, 0.7)',
-                    'rgba(75, 192, 192, 0.7)',
-                    'rgba(153, 102, 255, 0.7)'
-                ],
-                borderColor: 'white',
-                borderWidth: 2,
-                hoverOffset: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '70%',
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        boxWidth: 10,
-                        padding: 15,
-                        font: {
-                            size: 11
+                    tooltip: {
+                        titleFont: {
+                            size: 13
+                        },
+                        bodyFont: {
+                            size: 12
+                        },
+                        padding: 10,
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#333',
+                        bodyColor: '#666',
+                        borderColor: 'rgba(0, 0, 0, 0.1)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                const device = <?php echo json_encode($deviceUsageData); ?>[context.dataIndex];
+                                const minutes = Math.round(context.raw * 60);
+                                const hours = context.raw;
+                                return context.label + ': ' + hours + 'h (' + minutes + ' min)';
+                            }
                         }
                     }
-                },
-                tooltip: {
-                    titleFont: {
-                        size: 13
-                    },
-                    bodyFont: {
-                        size: 12
-                    },
-                    padding: 10,
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    titleColor: '#333',
-                    bodyColor: '#666',
-                    borderColor: 'rgba(0, 0, 0, 0.1)',
-                    borderWidth: 1,
-                    callbacks: {
-                        label: function(context) {
-                            return context.label + ': ' + context.raw + ' hours';
-                        }
-                    }
-                }
-            }
-        }
-    });
-    
-    // Custom Date Range Modal
-    const customRangeBtn = document.getElementById('custom-range-btn');
-    const dateRangeModal = document.getElementById('dateRangeModal');
-    const closeModalBtn = document.getElementById('closeModal');
-    const cancelRangeBtn = document.getElementById('cancelRange');
-    const dateRangeForm = document.getElementById('dateRangeForm');
-    
-    // Set default dates (last 7 days)
-    const today = new Date();
-    const sevenDaysAgo = new Date(today);
-    sevenDaysAgo.setDate(today.getDate() - 7);
-    
-    document.getElementById('startDate').value = sevenDaysAgo.toISOString().split('T')[0];
-    document.getElementById('endDate').value = today.toISOString().split('T')[0];
-    
-    // Show modal
-    customRangeBtn.addEventListener('click', function() {
-        dateRangeModal.classList.add('active');
-    });
-    
-    // Hide modal
-    function hideModal() {
-        dateRangeModal.classList.remove('active');
-    }
-    
-    closeModalBtn.addEventListener('click', hideModal);
-    cancelRangeBtn.addEventListener('click', hideModal);
-    
-    // Handle clicks outside modal to close it
-    dateRangeModal.addEventListener('click', function(event) {
-        if (event.target === dateRangeModal) {
-            hideModal();
-        }
-    });
-    
-    // Handle form submission
-    dateRangeForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        
-        if (startDate && endDate) {
-            // Redirect with custom date parameters
-            window.location.href = `?action=analytics&startDate=${startDate}&endDate=${endDate}`;
-        }
-    });
-    
-    // Chart download functionality
-    document.querySelectorAll('.btn-card-action[data-action="download"]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const chartType = this.dataset.chart;
-            let canvas;
-            
-            switch(chartType) {
-                case 'temperature':
-                    canvas = document.getElementById('temperatureChart');
-                    break;
-                case 'humidity':
-                    canvas = document.getElementById('humidityChart');
-                    break;
-                case 'device':
-                    canvas = document.getElementById('deviceUsageChart');
-                    break;
-            }
-            
-            if (canvas) {
-                // Create download link
-                const link = document.createElement('a');
-                link.download = `smarthome-${chartType}-analysis.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            }
-        });
-    });
-    
-    // Chart expand functionality
-    document.querySelectorAll('.btn-card-action[data-action="expand"]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const chartType = this.dataset.chart;
-            const card = this.closest('.analytics-card');
-            
-            if (card) {
-                if (card.classList.contains('expanded')) {
-                    card.classList.remove('expanded');
-                    this.innerHTML = '<i class="fas fa-expand-alt"></i>';
-                } else {
-                    // First, collapse any expanded cards
-                    document.querySelectorAll('.analytics-card.expanded').forEach(expandedCard => {
-                        expandedCard.classList.remove('expanded');
-                        expandedCard.querySelector('.btn-card-action[data-action="expand"]').innerHTML = 
-                            '<i class="fas fa-expand-alt"></i>';
-                    });
-                    
-                    // Then expand this card
-                    card.classList.add('expanded');
-                    this.innerHTML = '<i class="fas fa-compress-alt"></i>';
                 }
             }
         });
+
+        // Custom Date Range Modal
+        const customRangeBtn = document.getElementById('custom-range-btn');
+        const dateRangeModal = document.getElementById('dateRangeModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const cancelRangeBtn = document.getElementById('cancelRange');
+        const dateRangeForm = document.getElementById('dateRangeForm');
+
+        // Set default dates (last 7 days)
+        const today = new Date();
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(today.getDate() - 7);
+
+        document.getElementById('startDate').value = sevenDaysAgo.toISOString().split('T')[0];
+        document.getElementById('endDate').value = today.toISOString().split('T')[0];
+
+        // Show modal
+        customRangeBtn.addEventListener('click', function() {
+            dateRangeModal.classList.add('active');
+        });
+
+        // Hide modal
+        function hideModal() {
+            dateRangeModal.classList.remove('active');
+        }
+
+        closeModalBtn.addEventListener('click', hideModal);
+        cancelRangeBtn.addEventListener('click', hideModal);
+
+        // Handle clicks outside modal to close it
+        dateRangeModal.addEventListener('click', function(event) {
+            if (event.target === dateRangeModal) {
+                hideModal();
+            }
+        });
+
+        // Handle form submission
+        dateRangeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (startDate && endDate) {
+                // Redirect with custom date parameters
+                window.location.href = `?action=analytics&startDate=${startDate}&endDate=${endDate}`;
+            }
+        });
+
+        // Chart download functionality
+        document.querySelectorAll('.btn-card-action[data-action="download"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const chartType = this.dataset.chart;
+                let canvas;
+
+                switch (chartType) {
+                    case 'temperature':
+                        canvas = document.getElementById('temperatureChart');
+                        break;
+                    case 'humidity':
+                        canvas = document.getElementById('humidityChart');
+                        break;
+                    case 'device':
+                        canvas = document.getElementById('deviceUsageChart');
+                        break;
+                }
+
+                if (canvas) {
+                    // Create download link
+                    const link = document.createElement('a');
+                    link.download = `smarthome-${chartType}-analysis.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }
+            });
+        });
+
+        // Chart expand functionality
+        document.querySelectorAll('.btn-card-action[data-action="expand"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const chartType = this.dataset.chart;
+                const card = this.closest('.analytics-card');
+
+                if (card) {
+                    if (card.classList.contains('expanded')) {
+                        card.classList.remove('expanded');
+                        this.innerHTML = '<i class="fas fa-expand-alt"></i>';
+                    } else {
+                        // First, collapse any expanded cards
+                        document.querySelectorAll('.analytics-card.expanded').forEach(expandedCard => {
+                            expandedCard.classList.remove('expanded');
+                            expandedCard.querySelector('.btn-card-action[data-action="expand"]').innerHTML =
+                                '<i class="fas fa-expand-alt"></i>';
+                        });
+
+                        // Then expand this card
+                        card.classList.add('expanded');
+                        this.innerHTML = '<i class="fas fa-compress-alt"></i>';
+                    }
+                }
+            });
+        });
     });
-});
 </script>

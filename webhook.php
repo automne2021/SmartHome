@@ -146,8 +146,10 @@ try {
                 $success = $syncUtil->updateDeviceBrightness($device['id'], $value);
                 $message = "Updated device brightness to $value";
             } else {
-                $success = $syncUtil->updateDeviceStatus($device['id'], $value);
-                $message = "Updated device status to $value";
+                // Normalize value - this is key!
+                $normalizedValue = ($value === '1' || $value === 1) ? 'on' : 'off';
+                $success = $syncUtil->updateDeviceStatus($device['id'], $normalizedValue);
+                $message = "Updated device status to $normalizedValue";
             }
         } else {
             $message = "No device found with feed: $feedName";

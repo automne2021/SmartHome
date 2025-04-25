@@ -85,8 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while controlling the device');
+                //console.error('Error:', error);
+                //alert('An error occurred while controlling the device');
                 this.innerHTML = originalText;
             })
             .finally(() => {
@@ -96,20 +96,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Fix the updateDeviceStatus function
     function updateDeviceStatus(deviceId, status) {
         console.log(`Updating UI for device ${deviceId} to ${status}`);
         
+        // Normalize status value (might be 0/1 or on/off)
+        let normalizedStatus;
+        if (status === '1' || status === 1 || status === 'on') {
+            normalizedStatus = 'on';
+        } else if (status === '0' || status === 0 || status === 'off') {
+            normalizedStatus = 'off';
+        } else {
+            normalizedStatus = status; // Keep as is if it's something unexpected
+        }
+        
         const statusElement = document.querySelector(`#status-${deviceId}`);
-        const deviceCard = document.querySelector(`.device-card:has([data-device-id="${deviceId}"]).closest('.device-card')`);
         const buttonElement = document.querySelector(`[data-device-id="${deviceId}"]`);
+        let deviceCard = null;
+        
+        // Find the device card (more compatible approach)
+        if (buttonElement) {
+            deviceCard = buttonElement.closest('.device-card');
+        }
         
         if (statusElement) {
-            statusElement.textContent = status.charAt(0).toUpperCase() + status.slice(1); // Capitalize first letter
+            statusElement.textContent = normalizedStatus.charAt(0).toUpperCase() + normalizedStatus.slice(1);
         }
         
         if (deviceCard) {
-            if (status === 'on') {
+            if (normalizedStatus === 'on') {
                 deviceCard.classList.add('device-on');
                 deviceCard.classList.remove('device-off');
             } else {
@@ -119,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (buttonElement) {
-            if (status === 'on') {
+            if (normalizedStatus === 'on') {
                 buttonElement.textContent = 'Turn Off';
                 buttonElement.dataset.action = 'turn_off';
                 buttonElement.classList.remove('btn-on');
@@ -157,7 +171,18 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(devices => {
             devices.forEach(device => {
-                updateDeviceStatus(device.id, device.status === 'on' ? 1 : 0);
+                // Normalize status before updating UI
+                let status;
+                if (device.status === '1' || device.status === 1 || device.status === 'on') {
+                    status = 'on';
+                } else if (device.status === '0' || device.status === 0 || device.status === 'off') {
+                    status = 'off';
+                } else {
+                    status = device.status;
+                }
+                
+                // Now update UI with normalized status
+                updateDeviceStatus(device.id, status);
             });
         })
         .catch(error => console.error('Error fetching devices:', error));

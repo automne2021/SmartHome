@@ -29,7 +29,7 @@ class DeviceController
     public function toggleDevice($deviceId, $status = null)
     {
         // First get the device details
-        $query = "SELECT name, status, type, adafruit_feed FROM devices WHERE id = :deviceId";
+        $query = "SELECT name, status, type, adafruit_feed, updated_at FROM devices WHERE id = :deviceId";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':deviceId', $deviceId);
         $stmt->execute();
@@ -38,16 +38,24 @@ class DeviceController
         if ($device) {
             // Get current status before toggle
             $oldStatus = $device['status'];
+            $oldUpdatedAt = $device['updated_at'];
+            error_log("DeviceController: Device $deviceId status change - current status in DB: $oldStatus, last updated: $oldUpdatedAt");
 
             // If status is explicitly provided, use it; otherwise toggle
             if ($status !== null) {
-                $newStatus = $status;
+                // Normalize incoming status (might be 0/1 or on/off)
+                if ($status === '1' || $status === 1) {
+                    $newStatus = 'on';
+                } else if ($status === '0' || $status === 0) {
+                    $newStatus = 'off';
+                } else {
+                    $newStatus = $status;
+                }
             } else {
                 $newStatus = ($device['status'] == 'on') ? 'off' : 'on';
             }
 
             // Convert status to numerical value for Adafruit IO
-            // THIS IS THE KEY CHANGE:
             $adafruitValue = ($newStatus == 'on') ? '1' : '0';
 
             // Debug logging
@@ -70,8 +78,15 @@ class DeviceController
 
             // Only update DB if Adafruit was successful or hardware not connected
             if ($adaResult || !$this->settings->isHardwareConnected()) {
-                // Update database
-                $updateQuery = "UPDATE devices SET status = :status, updated_at = NOW() WHERE id = :deviceId";
+                // IMPORTANT: Only update the timestamp when turning ON, not when turning OFF
+                if ($newStatus == 'on') {
+                    // Update database with new timestamp
+                    $updateQuery = "UPDATE devices SET status = :status, updated_at = NOW() WHERE id = :deviceId";
+                } else {
+                    // Keep the existing timestamp when turning off
+                    $updateQuery = "UPDATE devices SET status = :status WHERE id = :deviceId";
+                }
+
                 $updateStmt = $this->db->prepare($updateQuery);
                 $updateStmt->bindParam(':status', $newStatus);
                 $updateStmt->bindParam(':deviceId', $deviceId);
@@ -101,10 +116,12 @@ class DeviceController
         return ['success' => false, 'message' => 'Device not found'];
     }
 
+    // Enhance your setBrightness method to provide better feedback
+
     public function setBrightness($deviceId, $brightness)
     {
         // First get the device details
-        $query = "SELECT adafruit_feed FROM devices WHERE id = :deviceId AND type = 'lamp'";
+        $query = "SELECT name, adafruit_feed FROM devices WHERE id = :deviceId AND type = 'lamp'";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':deviceId', $deviceId);
         $stmt->execute();
@@ -125,14 +142,21 @@ class DeviceController
             $adaResult = true;
             if ($this->settings->isHardwareConnected()) {
                 try {
+                    // Send data to Adafruit
                     $adaResult = $this->adafruitClient->sendData($device['adafruit_feed'], $brightness);
+                    error_log("Sent brightness to Adafruit: Feed={$device['adafruit_feed']}, Value=$brightness");
                 } catch (Exception $e) {
                     error_log("Error sending brightness to Adafruit: " . $e->getMessage());
                     $adaResult = false;
                 }
             }
 
-            return ['success' => $dbResult, 'brightness' => $brightness, 'hardwareSent' => $adaResult && $this->settings->isHardwareConnected()];
+            return [
+                'success' => $dbResult,
+                'brightness' => $brightness,
+                'hardwareSent' => $adaResult && $this->settings->isHardwareConnected(),
+                'device' => $device['name']
+            ];
         }
 
         return ['success' => false, 'message' => 'Device not found or not a lamp'];

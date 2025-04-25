@@ -1,3 +1,16 @@
+<?php
+// Add this normalization function at the top of the file
+function normalizeDeviceStatus($status)
+{
+    if ($status === '1' || $status === 1) {
+        return 'on';
+    } else if ($status === '0' || $status === 0) {
+        return 'off';
+    }
+    return $status;
+}
+?>
+
 <div class="dashboard-header-content">
     <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
     <div class="dashboard-overview">
@@ -28,7 +41,7 @@
                         <span class="sensor-unit">°C</span>
                     </div>
                     <?php if (isset($sensorData['temperature'])): ?>
-                        <?php $tempStatus = $sensorData['temperature'] > 28 ? 'high' : ($sensorData['temperature'] < 18 ? 'low' : 'normal'); ?>
+                        <?php $tempStatus = $sensorData['temperature'] > 30 ? 'high' : ($sensorData['temperature'] < 18 ? 'low' : 'normal'); ?>
                         <div class="sensor-status <?php echo $tempStatus; ?>">
                             <?php
                             if ($tempStatus == 'high') echo '<i class="fas fa-arrow-up"></i> High';
@@ -105,8 +118,12 @@
     </div>
 
     <div class="devices-grid">
-        <?php foreach ($devices as $device): ?>
-            <div class="device-card <?php echo $device['status'] == 'on' ? 'device-on' : 'device-off'; ?>">
+        <?php foreach ($devices as $device):
+            $normalizedStatus = normalizeDeviceStatus($device['status']);
+            // Check if this is the special lamp2 with brightness
+            $isLamp2 = ($device['type'] == 'lamp' && $device['adafruit_feed'] == 'lamp2');
+        ?>
+            <div class="device-card <?php echo $normalizedStatus == 'on' ? 'device-on' : 'device-off'; ?>">
                 <?php
                 $icon = 'question';
                 switch ($device['type']) {
@@ -127,27 +144,53 @@
                 <div class="device-info">
                     <h3><?php echo htmlspecialchars($device['name']); ?></h3>
                     <div class="device-status-indicator">
-                        <span class="status-dot status-<?php echo $device['status'] == 'on' ? 'on' : 'off'; ?>"></span>
-                        <span id="status-<?php echo $device['id']; ?>"><?php echo ucfirst($device['status']); ?></span>
+                        <span class="status-dot status-<?php echo $normalizedStatus == 'on' ? 'on' : 'off'; ?>"></span>
+                        <span id="status-<?php echo $device['id']; ?>"><?php echo ucfirst($normalizedStatus); ?></span>
                     </div>
 
                     <?php if ($device['type'] == 'lamp' && isset($device['brightness'])): ?>
-                        <div class="device-brightness">
-                            <div class="brightness-bar">
-                                <div class="brightness-level" style="width: <?php echo $device['brightness']; ?>%"></div>
+                        <?php if ($isLamp2): ?>
+                            <!-- For lamp2, show only the slider control -->
+                            <div class="brightness-control">
+                                <div class="brightness-display">
+                                    <i class="fas fa-sun"></i>
+                                    <span id="brightness-value-<?php echo $device['id']; ?>"><?php echo $device['brightness']; ?>%</span>
+                                </div>
+                                <div class="brightness-slider-container">
+                                    <input type="range" id="brightness-<?php echo $device['id']; ?>"
+                                        class="brightness-slider" min="0" max="100"
+                                        value="<?php echo $device['brightness']; ?>"
+                                        data-device-id="<?php echo $device['id']; ?>">
+                                </div>
                             </div>
-                            <span class="brightness-value"><?php echo $device['brightness']; ?>%</span>
-                        </div>
+                        <?php else: ?>
+                            <!-- For regular lamps, just show the brightness bar -->
+                            <div class="device-brightness">
+                                <div class="brightness-bar">
+                                    <div class="brightness-level" style="width: <?php echo $device['brightness']; ?>%"></div>
+                                </div>
+                                <span class="brightness-value"><?php echo $device['brightness']; ?>%</span>
+                            </div>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
-                <div class="device-controls">
-                    <button class="btn <?php echo $device['status'] == 'on' ? 'btn-off' : 'btn-on'; ?> device-button"
-                        data-device-id="<?php echo $device['id']; ?>"
-                        data-action="<?php echo $device['status'] == 'on' ? 'turn_off' : 'turn_on'; ?>">
-                        <i class="fas fa-<?php echo $device['status'] == 'on' ? 'power-off' : 'play'; ?>"></i>
-                        <?php echo $device['status'] == 'on' ? 'Turn Off' : 'Turn On'; ?>
-                    </button>
-                </div>
+
+                <?php if (!$isLamp2): ?>
+                    <!-- Only show control buttons for regular devices, not lamp2 -->
+                    <div class="device-controls">
+                        <button class="btn <?php echo $normalizedStatus == 'on' ? 'btn-off' : 'btn-on'; ?> device-button"
+                            data-device-id="<?php echo $device['id']; ?>"
+                            data-action="<?php echo $normalizedStatus == 'on' ? 'turn_off' : 'turn_on'; ?>">
+                            <i class="fas fa-<?php echo $normalizedStatus == 'on' ? 'power-off' : 'play'; ?>"></i>
+                            <?php echo $normalizedStatus == 'on' ? 'Turn Off' : 'Turn On'; ?>
+                        </button>
+                    </div>
+                <?php else: ?>
+                    <!-- For lamp2, show a note instead of button -->
+                    <div class="device-controls brightness-only">
+                        <p class="brightness-note">Adjust the brightness slider to control this lamp</p>
+                    </div>
+                <?php endif; ?>
             </div>
         <?php endforeach; ?>
     </div>
@@ -319,6 +362,116 @@
                         });
                 }
             });
+        }
+
+        document.querySelectorAll('.brightness-slider').forEach(slider => {
+            let brightnessTimer; // For debouncing
+            let deviceCard;
+
+            slider.addEventListener('input', function() {
+                const deviceId = this.dataset.deviceId;
+                const value = this.value;
+                deviceCard = this.closest('.device-card');
+
+                // Immediately update the displayed value
+                document.querySelectorAll(`#brightness-value-${deviceId}`).forEach(el => {
+                    if (el) el.textContent = value + '%';
+                });
+
+                // Add subtle visual feedback
+                if (deviceCard && !deviceCard.classList.contains('adjusting')) {
+                    deviceCard.classList.add('adjusting');
+                }
+
+                // Clear any pending timers
+                if (brightnessTimer) clearTimeout(brightnessTimer);
+
+                // Debounce the actual API call
+                brightnessTimer = setTimeout(() => {
+                    updateBrightness(deviceId, value);
+                }, 300);
+            });
+
+            // Helper function to send brightness updates
+            function updateBrightness(deviceId, brightness) {
+                // Add visual feedback
+                if (deviceCard) deviceCard.classList.add('updating');
+
+                // Send to server
+                fetch('index.php?action=setBrightness', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: `deviceId=${deviceId}&brightness=${brightness}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showNotification(`Brightness set to ${brightness}%`, 'success');
+                        } else {
+                            showNotification('Error: ' + (data.message || 'Failed to set brightness'), 'error');
+                        }
+
+                        if (deviceCard) {
+                            deviceCard.classList.remove('updating');
+                            deviceCard.classList.remove('adjusting');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('Error occurred while adjusting brightness', 'error');
+
+                        if (deviceCard) {
+                            deviceCard.classList.remove('updating');
+                            deviceCard.classList.remove('adjusting');
+                        }
+                    });
+            }
+        });
+
+        // Add showNotification function if it doesn't exist
+        if (typeof showNotification !== 'function') {
+            function showNotification(message, type = 'info') {
+                const notifications = document.getElementById('notifications');
+                if (!notifications) return;
+
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+
+                let iconClass = 'info-circle';
+                if (type === 'success') iconClass = 'check-circle';
+                if (type === 'error') iconClass = 'exclamation-circle';
+                if (type === 'warning') iconClass = 'exclamation-triangle';
+
+                notification.innerHTML = `
+                    <div class="notification-icon">
+                        <i class="fas fa-${iconClass}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <p class="notification-message">${message}</p>
+                        <p class="notification-timestamp">${new Date().toLocaleTimeString()}</p>
+                    </div>
+                `;
+
+                // Insert at the top
+                if (notifications.firstChild) {
+                    notifications.insertBefore(notification, notifications.firstChild);
+                } else {
+                    notifications.appendChild(notification);
+                }
+
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 5000);
+            }
+
+            window.showNotification = showNotification;
         }
     });
 </script>

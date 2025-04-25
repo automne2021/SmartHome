@@ -53,6 +53,28 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
             echo json_encode($notifications);
             break;
 
+        case 'setBrightness':
+            $deviceId = $_POST['deviceId'] ?? null;
+            $brightness = $_POST['brightness'] ?? null;
+
+            // Log the request for debugging
+            error_log("setBrightness called. deviceId=$deviceId, brightness=$brightness");
+
+            if ($deviceId !== null && $brightness !== null) {
+                try {
+                    $result = $deviceController->setBrightness($deviceId, $brightness);
+                    echo json_encode($result);
+                } catch (Exception $e) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Error: ' . $e->getMessage()
+                    ]);
+                }
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Missing parameters']);
+            }
+            break;
+
         default:
             echo json_encode(['success' => false, 'message' => 'Unknown action']);
             break;
