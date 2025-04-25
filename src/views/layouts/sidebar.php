@@ -1,11 +1,8 @@
 <div class="sidebar">
     <div class="sidebar-header">
-        <h3><i class="fas fa-home"></i> SmartHome</h3>
-        <button id="sidebar-toggle-btn" class="btn-icon sidebar-toggle">
-            <i class="fas fa-bars"></i>
-        </button>
+        <h3><i class="fas fa-home"></i> <span>SmartHome</span></h3>
     </div>
-    
+
     <div class="sidebar-user">
         <div class="user-avatar">
             <i class="fas fa-user-circle"></i>
@@ -15,7 +12,7 @@
             <p class="user-role">Administrator</p>
         </div>
     </div>
-    
+
     <ul class="sidebar-menu">
         <li class="<?php echo $page === 'dashboard' ? 'active' : ''; ?>">
             <a href="index.php">
@@ -42,9 +39,13 @@
             </a>
         </li>
     </ul>
-    
+
     <div class="sidebar-footer">
         <p>&copy; <?php echo date('Y'); ?> SmartHome</p>
         <p>v1.0.0</p>
     </div>
 </div>
+
+<button id="sidebar-toggle-btn" class="sidebar-float-toggle">
+    <i class="fas fa-chevron-left"></i>
+</button>

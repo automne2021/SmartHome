@@ -26,7 +26,7 @@ $action = $_GET['action'] ?? 'dashboard';
 // Process AJAX requests first
 if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
     header('Content-Type: application/json');
-    
+
     switch ($action) {
         case 'getDevices':
             $devices = $deviceController->getAllDevices();
@@ -40,18 +40,19 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
 
         case 'toggleDevice':
             $deviceId = $_POST['deviceId'] ?? null;
+            $status = $_POST['status'] ?? null;
             if ($deviceId) {
-                $result = $deviceController->toggleDevice($deviceId);
+                $result = $deviceController->toggleDevice($deviceId, $status);
                 echo json_encode($result);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Invalid parameters']);
             }
             break;
-            
+
         case 'getNotifications':
             echo json_encode($notifications);
             break;
-            
+
         default:
             echo json_encode(['success' => false, 'message' => 'Unknown action']);
             break;
@@ -69,7 +70,7 @@ switch ($action) {
         $additionalCss = ['dashboard', 'devices', 'analytics', 'notifications'];
         $contentView = '../src/views/dashboard_content.php';
         break;
-        
+
     case 'devices':
         $pageTitle = 'Manage Devices';
         $page = 'devices';
@@ -83,7 +84,7 @@ switch ($action) {
         $additionalJs = ['devices'];
         $contentView = '../src/views/devices_content.php';
         break;
-        
+
     case 'analytics':
         $pageTitle = 'Analytics';
         $page = 'analytics';
@@ -95,7 +96,7 @@ switch ($action) {
         $tempStmt = $db->prepare($tempQuery);
         $tempStmt->execute();
         $tempData = $tempStmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         // Get humidity data for the last 24 hours
         $humQuery = "SELECT value, timestamp FROM sensor_data 
                     WHERE sensor_type = 'humidity' 
@@ -104,35 +105,35 @@ switch ($action) {
         $humStmt = $db->prepare($humQuery);
         $humStmt->execute();
         $humData = $humStmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         // Format data for charts
         $temperatureValues = [];
         $temperatureLabels = [];
         $humidityValues = [];
         $humidityLabels = [];
-        
+
         foreach ($tempData as $data) {
             $temperatureValues[] = $data['value'];
             $temperatureLabels[] = date('H:i', strtotime($data['timestamp']));
         }
-        
+
         foreach ($humData as $data) {
             $humidityValues[] = $data['value'];
             $humidityLabels[] = date('H:i', strtotime($data['timestamp']));
         }
-        
+
         $additionalCss = ['analytics'];
         $additionalJs = ['analytics'];
         $contentView = '../src/views/analytics_content.php';
         break;
-        
+
     case 'settings':
         $pageTitle = 'Settings';
         $page = 'settings';
         $additionalCss = ['settings'];
         $contentView = '../src/views/settings_content.php';
         break;
-        
+
     default:
         $pageTitle = 'Page Not Found';
         $page = '404';
@@ -142,4 +143,3 @@ switch ($action) {
 
 // Include main layout
 include '../src/views/layouts/main_layout.php';
-?>

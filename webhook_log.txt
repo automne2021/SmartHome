@@ -1,0 +1,207 @@
+2025-04-25 08:48:54 - Webhook received
+POST: []
+GET: []
+Parsed data: []
+Error: Missing feed_key or value
+2025-04-25 08:51:36 - Webhook received
+POST: []
+GET: {"feed_key":"temperature","value":"25"}
+Parsed data: {"feed_key":"temperature","value":"25"}
+2025-04-25 08:51:36 - Result: Success - Saved temperature data: 25
+2025-04-25 08:53:30 - Webhook received
+POST: []
+GET: {"feed_key":"temperature","value":"25"}
+Parsed data: {"feed_key":"temperature","value":"25"}
+2025-04-25 08:53:30 - Result: Success - Saved temperature data: 25
+2025-04-25 09:20:26 - Webhook received
+POST: []
+GET: []
+Parsed data: [{"feed_key":"{{feed.key}}","value":"1"}]
+Error: Missing feed_key or value
+2025-04-25 09:21:59 - Webhook received
+POST: []
+GET: []
+Parsed data: [{"feed_key":"{{feed.key}}","value":"0"}]
+Error: Missing feed_key or value
+2025-04-25 09:22:50 - Webhook received
+POST: []
+GET: []
+Parsed data: [{"feed_key":"lamp","value":"1"}]
+Error: Missing feed_key or value
+2025-04-25 09:25:55 - Webhook received
+POST: []
+GET: {"feed":"lamp1","value":"1"}
+Raw input: 
+Feed from GET param: lamp1
+Value from GET param: 1
+Final feed name: lamp1
+Final value: 1
+2025-04-25 09:25:55 - Result: Failed - No device found with feed: lamp1
+2025-04-25 09:26:10 - Webhook received
+POST: []
+GET: {"feed":"lamp","value":"1"}
+Raw input: 
+Feed from GET param: lamp
+Value from GET param: 1
+Final feed name: lamp
+Final value: 1
+2025-04-25 09:26:10 - Result: Success - Updated device status to 1
+2025-04-25 09:26:37 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp","value":"0"}]
+Parsed JSON: [{"feed_key":"lamp","value":"0"}]
+Final feed name: lamp
+Final value: 0
+2025-04-25 09:26:37 - Result: Success - Updated device status to 0
+2025-04-25 09:26:53 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp","value":"1"}]
+Parsed JSON: [{"feed_key":"lamp","value":"1"}]
+Final feed name: lamp
+Final value: 1
+2025-04-25 09:26:53 - Result: Success - Updated device status to 1
+2025-04-25 09:30:13 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"temperature","value":"35.3"}]
+Parsed JSON: [{"feed_key":"temperature","value":"35.3"}]
+Final feed name: temperature
+Final value: 35.3
+2025-04-25 09:30:13 - Result: Success - Saved temperature data: 35.3
+2025-04-25 09:30:43 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"humidity","value":"52.7"}]
+Parsed JSON: [{"feed_key":"humidity","value":"52.7"}]
+Final feed name: humidity
+Final value: 52.7
+2025-04-25 09:30:43 - Result: Success - Saved humidity data: 52.7
+2025-04-25 09:30:56 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"fan","value":"1"}]
+Parsed JSON: [{"feed_key":"fan","value":"1"}]
+Final feed name: fan
+Final value: 1
+2025-04-25 09:30:56 - Result: Success - Updated device status to 1
+2025-04-25 09:31:40 - Webhook received
+POST: {"{\"feed_key\"_=>_\"door\",_\"value\"_=>_\"1\"}":""}
+GET: []
+Raw input: %7B%22feed_key%22+%3D%3E+%22door%22%2C+%22value%22+%3D%3E+%221%22%7D
+Parsed JSON: null
+Final feed name: null
+Final value: null
+Error: Missing feed_key or value
+2025-04-25 09:31:47 - Webhook received
+POST: {"{\"feed_key\"_=>_\"door\",_\"value\"_=>_\"0\"}":""}
+GET: []
+Raw input: %7B%22feed_key%22+%3D%3E+%22door%22%2C+%22value%22+%3D%3E+%220%22%7D
+Parsed JSON: null
+Final feed name: null
+Final value: null
+Error: Missing feed_key or value
+2025-04-25 09:32:10 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp2","value":"60"}]
+Parsed JSON: [{"feed_key":"lamp2","value":"60"}]
+Final feed name: lamp2
+Final value: 60
+2025-04-25 09:32:10 - Result: Success - Updated device brightness to 60
+2025-04-25 09:32:34 - Webhook received
+POST: {"{\"feed_key\"_=>_\"door\",_\"value\"_=>_\"on\"}":""}
+GET: []
+Raw input: %7B%22feed_key%22+%3D%3E+%22door%22%2C+%22value%22+%3D%3E+%22on%22%7D
+Parsed JSON: null
+Final feed name: null
+Final value: null
+Error: Missing feed_key or value
+2025-04-25 09:32:38 - Webhook received
+POST: {"{\"feed_key\"_=>_\"door\",_\"value\"_=>_\"off\"}":""}
+GET: []
+Raw input: %7B%22feed_key%22+%3D%3E+%22door%22%2C+%22value%22+%3D%3E+%22off%22%7D
+Parsed JSON: null
+Final feed name: null
+Final value: null
+Error: Missing feed_key or value
+2025-04-25 09:44:36 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp","value":"1"}]
+Parsed JSON: [{"feed_key":"lamp","value":"1"}]
+Final feed name: lamp
+Final value: 1
+2025-04-25 09:44:36 - Result: Success - Updated device status to 1
+2025-04-25 09:49:50 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"fan","value":"1"}]
+Parsed JSON: [{"feed_key":"fan","value":"1"}]
+Final feed name: fan
+Final value: 1
+2025-04-25 09:49:50 - Result: Success - Updated device status to 1
+2025-04-25 09:49:50 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"fan","value":"1"}]
+Parsed JSON: [{"feed_key":"fan","value":"1"}]
+Final feed name: fan
+Final value: 1
+2025-04-25 09:49:50 - Result: Success - Updated device status to 1
+2025-04-25 09:50:18 - Webhook received
+POST: {"{\"feed_key\"_=>_\"door\",_\"value\"_=>_\"1\"}":""}
+GET: []
+Raw input: %7B%22feed_key%22+%3D%3E+%22door%22%2C+%22value%22+%3D%3E+%221%22%7D
+Parsed JSON: null
+Final feed name: null
+Final value: null
+Error: Missing feed_key or value
+2025-04-25 11:13:47 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp","value":"0"}]
+Parsed JSON: [{"feed_key":"lamp","value":"0"}]
+Final feed name: lamp
+Final value: 0
+2025-04-25 11:13:47 - Result: Success - Updated device status to 0
+2025-04-25 11:13:53 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"humidity","value":"60.2"}]
+Parsed JSON: [{"feed_key":"humidity","value":"60.2"}]
+2025-04-25 11:13:53 - Webhook received
+POST: []
+GET: []
+Final value: 60.2
+Raw input: [{"feed_key":"temperature","value":"28.8"}]
+Parsed JSON: [{"feed_key":"temperature","value":"28.8"}]
+Final feed name: temperature
+Final value: 28.8
+2025-04-25 11:13:53 - Result: Success - Saved humidity data: 60.2
+2025-04-25 11:13:53 - Result: Success - Saved temperature data: 28.8
+2025-04-25 11:14:02 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"fan","value":"1"}]
+Parsed JSON: [{"feed_key":"fan","value":"1"}]
+Final feed name: fan
+Final value: 1
+2025-04-25 11:14:02 - Result: Success - Updated device status to 1
+2025-04-25 11:16:34 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp2","value":"1"}]
+Parsed JSON: [{"feed_key":"lamp2","value":"1"}]
+Final feed name: lamp2
+Final value: 1
+2025-04-25 11:16:34 - Webhook received
+POST: []
+GET: []
+Raw input: [{"feed_key":"lamp2","value":"1"}]
+Parsed JSON: [{"feed_key":"lamp2","value":"1"}]
+Final feed name: lamp2
+Final value: 1
+2025-04-25 11:16:34 - Result: Success - Updated device brightness to 1
+2025-04-25 11:16:34 - Result: Success - Updated device brightness to 1

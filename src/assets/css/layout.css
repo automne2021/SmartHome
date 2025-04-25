@@ -12,6 +12,7 @@
     flex-direction: column;
     min-width: 0;
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .page-content {
@@ -48,6 +49,17 @@
         height: 100%;
         background-color: rgba(0,0,0,0.5);
         z-index: 999;
+    }
+
+    .sidebar-float-toggle {
+        left: 10px;
+        top: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .app-container.sidebar-mobile-open .sidebar-float-toggle {
+        left: 290px;
     }
 }
 
@@ -90,4 +102,40 @@
 @keyframes fadeIn {
     from { opacity: 0.7; }
     to { opacity: 1; }
+}
+
+/* Sidebar toggle button that follows sidebar */
+.sidebar-float-toggle {
+    position: fixed;
+    left: 280px;
+    /* Initial position matching sidebar width */
+    top: 20px;
+    background-color: white;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    z-index: 99;
+    transition: left 0.3s ease;
+    border: none;
+    color: var(--text-color);
+}
+
+.app-container.sidebar-collapsed .sidebar-float-toggle {
+    left: 70px;
+    /* Position when sidebar is collapsed */
+}
+
+/* Hide the default sidebar toggle button */
+.sidebar-header .sidebar-toggle {
+    display: none;
+}
+
+/* Sidebar Collapsed State */
+.app-container.sidebar-collapsed .sidebar {
+    width: 70px;
 }

@@ -4,10 +4,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
     const appContainer = document.querySelector('.app-container');
     
-    // Desktop sidebar toggle
+    // Desktop sidebar toggle with icon rotation
     if (sidebarToggleBtn) {
         sidebarToggleBtn.addEventListener('click', function() {
             appContainer.classList.toggle('sidebar-collapsed');
+            
+            // Update toggle icon direction
+            const icon = this.querySelector('i');
+            if (appContainer.classList.contains('sidebar-collapsed')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
             
             // Save preference to localStorage
             const isCollapsed = appContainer.classList.contains('sidebar-collapsed');
@@ -23,7 +33,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Close sidebar when clicking outside
             document.addEventListener('click', function closeOutside(event) {
                 if (!event.target.closest('.sidebar') && 
-                    !event.target.closest('#mobile-sidebar-toggle') && 
+                    !event.target.closest('#mobile-sidebar-toggle') &&
+                    !event.target.closest('#sidebar-toggle-btn') &&
                     appContainer.classList.contains('sidebar-mobile-open')) {
                     appContainer.classList.remove('sidebar-mobile-open');
                     document.removeEventListener('click', closeOutside);
@@ -32,10 +43,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Load sidebar collapse preference
+    // Load sidebar collapse preference and update toggle icon
     const savedCollapse = localStorage.getItem('sidebar-collapsed');
-    if (savedCollapse === 'true') {
+    if (savedCollapse === 'true' && sidebarToggleBtn) {
         appContainer.classList.add('sidebar-collapsed');
+        const icon = sidebarToggleBtn.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-chevron-left');
+            icon.classList.add('fa-chevron-right');
+        }
     }
     
     // Notification dropdown

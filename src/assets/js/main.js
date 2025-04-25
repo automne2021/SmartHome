@@ -44,44 +44,91 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             const deviceId = this.dataset.deviceId;
             const action = this.dataset.action;
-            const status = action === 'turn_on' ? 1 : 0;
+            const status = action === 'turn_on' ? 'on' : 'off';
+            
+            // Store original button text
+            const originalText = this.innerHTML;
+            
+            // Show loading state
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            
+            console.log(`Toggling device ${deviceId} to ${status}`);
 
-            fetch('index.php?action=toggleDevice', {
+            // Use correct path
+            fetch('index.php?action=toggleDevice', { // Changed this line
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: `deviceId=${deviceId}&status=${status}`
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log("Response received:", response);
+                return response.json();
+            })
             .then(data => {
+                console.log('Device toggle response:', data);
                 if (data.success) {
+                    // Update UI to reflect the new state
                     updateDeviceStatus(deviceId, status);
+                    
+                    // Show success notification
+                    showNotification(`${data.device || 'Device'} turned ${status}`, 'success');
                 } else {
+                    console.error('Error toggling device:', data);
                     alert('Error: ' + (data.message || 'Failed to toggle device'));
+                    
+                    // Reset button to original state
+                    this.innerHTML = originalText;
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while controlling the device');
+                this.innerHTML = originalText;
+            })
+            .finally(() => {
+                // Re-enable button
+                this.disabled = false;
+            });
         });
     });
 
+    // Fix the updateDeviceStatus function
     function updateDeviceStatus(deviceId, status) {
+        console.log(`Updating UI for device ${deviceId} to ${status}`);
+        
         const statusElement = document.querySelector(`#status-${deviceId}`);
+        const deviceCard = document.querySelector(`.device-card:has([data-device-id="${deviceId}"]).closest('.device-card')`);
         const buttonElement = document.querySelector(`[data-device-id="${deviceId}"]`);
         
         if (statusElement) {
-            if (status == 1) {
-                statusElement.textContent = 'on';
-                if (buttonElement) {
-                    buttonElement.textContent = 'Turn Off';
-                    buttonElement.dataset.action = 'turn_off';
-                }
+            statusElement.textContent = status.charAt(0).toUpperCase() + status.slice(1); // Capitalize first letter
+        }
+        
+        if (deviceCard) {
+            if (status === 'on') {
+                deviceCard.classList.add('device-on');
+                deviceCard.classList.remove('device-off');
             } else {
-                statusElement.textContent = 'off';
-                if (buttonElement) {
-                    buttonElement.textContent = 'Turn On';
-                    buttonElement.dataset.action = 'turn_on';
-                }
+                deviceCard.classList.remove('device-on');
+                deviceCard.classList.add('device-off');
+            }
+        }
+        
+        if (buttonElement) {
+            if (status === 'on') {
+                buttonElement.textContent = 'Turn Off';
+                buttonElement.dataset.action = 'turn_off';
+                buttonElement.classList.remove('btn-on');
+                buttonElement.classList.add('btn-off');
+            } else {
+                buttonElement.textContent = 'Turn On';
+                buttonElement.dataset.action = 'turn_on';
+                buttonElement.classList.remove('btn-off');
+                buttonElement.classList.add('btn-on');
             }
         }
     }
