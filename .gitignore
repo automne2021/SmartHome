@@ -1,0 +1,5 @@
+.env
+vendor/
+settings.json
+webhook_log.txt
+*.log

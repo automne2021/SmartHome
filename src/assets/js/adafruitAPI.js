@@ -1,12 +1,11 @@
-const API_URL = 'https://io.adafruit.com/api/v2/nhanphan2002/feeds/';
-const API_KEY = 'aio_PknY103kEThd6vvHwSh8n97ah0zh';
+const API_URL = 'api_proxy.php?feed=';
 
 async function getFeedData(feedName) {
-    const response = await fetch(`${API_URL}${feedName}/data`, {
+    const response = await fetch(`${API_URL}${feedName}`, {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
-            'X-AIO-Key': API_KEY
+            'Content-Type': 'application/json'
+            // API key is handled by the proxy now
         }
     });
     if (!response.ok) {
@@ -16,11 +15,11 @@ async function getFeedData(feedName) {
 }
 
 async function sendFeedData(feedName, value) {
-    const response = await fetch(`${API_URL}${feedName}/data`, {
+    const response = await fetch(`${API_URL}${feedName}`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'X-AIO-Key': API_KEY
+            'Content-Type': 'application/json'
+            // API key is handled by the proxy now
         },
         body: JSON.stringify({ value: value })
     });
