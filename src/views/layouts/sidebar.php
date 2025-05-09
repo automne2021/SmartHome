@@ -8,8 +8,8 @@
             <i class="fas fa-user-circle"></i>
         </div>
         <div class="user-info">
-            <p class="user-name">Admin User</p>
-            <p class="user-role">Administrator</p>
+            <p class="user-name"><?php echo $_SESSION['username']; ?></p>
+            <p class="user-role">Home Owner</p>
         </div>
     </div>
 
@@ -36,6 +36,12 @@
             <a href="index.php?action=settings">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
+            </a>
+        </li>
+        <li>
+            <a href="logout.php">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
             </a>
         </li>
     </ul>

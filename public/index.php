@@ -2,8 +2,16 @@
 require_once '../src/config/database.php';
 require_once '../src/controllers/DeviceController.php';
 require_once '../src/controllers/SensorController.php';
+require_once '../src/controllers/AuthController.php';
 require_once '../src/utils/SystemSettings.php';
 require_once '../src/utils/NotificationSystem.php';
+
+// Check if user is logged in (add this section)
+$authController = new AuthController();
+if (!$authController->isLoggedIn()) {
+    header('Location: login.php');
+    exit;
+}
 
 // Ensure hardware is always considered connected
 $settings = SystemSettings::getInstance();

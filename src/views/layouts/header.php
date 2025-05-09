@@ -4,7 +4,7 @@
             <i class="fas fa-bars"></i>
         </button>
     </div>
-    
+
     <div class="header-center">
         <div class="quick-actions">
             <button class="btn btn-sm" id="refresh-data">
@@ -14,18 +14,18 @@
                 <i class="fas fa-power-off"></i> All Off
             </button>
             <div class="sync-info">
-                <i class="fas fa-sync"></i> Last sync: 
+                <i class="fas fa-sync"></i> Last sync:
                 <span id="last-sync"><?php echo $settings->getLastSync() ?: 'Never'; ?></span>
             </div>
         </div>
     </div>
-    
+
     <div class="header-right">
         <div class="header-notification">
             <button class="btn-icon notification-toggle">
                 <i class="fas fa-bell"></i>
-                <?php if(!empty($alerts)): ?>
-                <span class="notification-badge"><?php echo count($alerts); ?></span>
+                <?php if (!empty($alerts)): ?>
+                    <span class="notification-badge"><?php echo count($alerts); ?></span>
                 <?php endif; ?>
             </button>
             <div class="notification-dropdown">
@@ -37,7 +37,7 @@
                     <?php if (empty($notifications)): ?>
                         <div class="no-notifications">No new notifications</div>
                     <?php else: ?>
-                        <?php foreach(array_slice($notifications, 0, 3) as $notice): ?>
+                        <?php foreach (array_slice($notifications, 0, 3) as $notice): ?>
                             <div class="notification-item <?php echo strpos($notice['type'], 'high') !== false ? 'warning' : 'info'; ?>">
                                 <div class="notification-content">
                                     <p><?php echo htmlspecialchars($notice['message']); ?></p>
@@ -49,7 +49,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="header-profile">
             <button class="btn-icon profile-toggle">
                 <i class="fas fa-user-circle"></i>
@@ -61,7 +61,7 @@
                 <a href="index.php?action=settings">
                     <i class="fas fa-cog"></i> Settings
                 </a>
-                <a href="index.php?action=logout">
+                <a href="logout.php">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
